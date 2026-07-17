@@ -1,0 +1,33 @@
+
+             CURRENT ARCHITECTURE
+
+                     User Query
+                          │
+                          ▼
+                 Query Analyzer
+                          │
+        ┌─────────────────┴─────────────────┐
+        ▼                                   ▼
+ Semantic Query                    Metadata Filters
+        │                                   │
+        └──────────────┬────────────────────┘
+                       ▼
+              Metadata Filtering
+                       │
+                       ▼
+         Dense Search (ChromaDB)
+                       │
+                       │
+               BM25 Search
+                       │
+                       ▼
+                 RRF Fusion
+                       │
+                       ▼
+          Cross Encoder Reranker
+                       │
+                       ▼
+              Final Top Chunks
+                       │
+                       ▼
+                     LLM

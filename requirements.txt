@@ -1,0 +1,13 @@
+langchain-community
+gitpython
+langchain_groq
+sentence-transformers
+streamlit
+fastapi
+chromadb
+uvicorn
+faiss-cpu
+python_dotenv
+langchain
+langchain_core
+rank-bm25

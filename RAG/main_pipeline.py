@@ -10,6 +10,12 @@ import uuid
 
 logger = get_logger(__name__)
 def data_load(repo_link):
+    """
+    Loading the Data
+
+    Args:
+        repo_link (str): link of the github repository
+    """
     documents = git_ingestion(repo_link)
     chunks = splitter(document=documents)
     

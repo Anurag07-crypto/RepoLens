@@ -35,6 +35,20 @@ app = FastAPI()
 
 @app.post("/link")
 def insert_link(link:GIT_REPO):
+    """
+    Insert GitHub Repo Link
+
+    Args:
+        link (GIT_REPO): Link of GitHub repo
+
+    Raises:
+        HTTPException: Runtime error in /link
+        HTTPException: Unexpected error in /link
+
+    Returns:
+        str: repo_link
+    """
+    
     try:
         repo_link = link.repo_link
         logger.info(f"Loading repository: {repo_link}")
@@ -52,6 +66,20 @@ def insert_link(link:GIT_REPO):
     
 @app.post("/main")
 def main(query:REQUEST):
+    """
+    main server for rag
+
+    Args:
+        query (REQUEST): User requested server
+
+    Raises:
+        HTTPException: Unexpected error in /main
+        HTTPException: Runtime error in /main
+
+    Returns:
+        Dict: Dictionary of Query and Response
+    """
+    
     try:
         llm = ChatGroq(model="openai/gpt-oss-20b", api_key=groq_api_key)
         retriever = RETRIEVER(embedding_manager,

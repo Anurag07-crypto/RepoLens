@@ -4,6 +4,10 @@ import pickle
 from pathlib import Path
 
 class BM25_MANAGER:
+    """
+    BM25_MANAGER - to manage kewords search for better retrival and help in hybrid search
+    """
+    
     def __init__(self, persist_path:str=None):
         self.documents = []
         self.tokenized_documents = []
@@ -14,6 +18,10 @@ class BM25_MANAGER:
         self._load()
         
     def _load(self):
+        """
+        Loading the BM25 Keyword searching model [BM25kapi]
+        """
+        
         if self.persistant_path.exists():
             with open(self.persistant_path,"rb") as f:
                 state = pickle.load(f)
@@ -24,6 +32,10 @@ class BM25_MANAGER:
             self.bm25 = state["bm25"]
             
     def save(self):
+        """
+        Saving the Model
+        """
+        
         self.persistant_path.parent.mkdir(parents=True, exist_ok=True)
         with open(self.persistant_path, "wb") as f:
             pickle.dump({
@@ -35,18 +47,42 @@ class BM25_MANAGER:
             }, f)
             
     def index(self):
+        """
+        Indexing the BM25 Model
+        """
+        
         self.bm25 = BM25Okapi(
             self.tokenized_documents
         )
         self.save()
         
     def add_documents(self, doc_id, document, metadata):
+        """Adding documents in the BM25 Manager
+
+        Args:
+            doc_id (int): It's the Id of the Document to retrieve
+            document (docs): Document Data
+            metadata (metadata): MetaData For Filteration
+        """
+        
         self.documents.append(document)
         self.tokenized_documents.append(document.lower().split())
         self.doc_ids.append(doc_id)
         self.metadatas.append(metadata)
     
     def keyword_search(self, query:str, top_k:int=3, filters: dict | None = None):
+        """
+        It's like keyword search engine
+
+        Args:
+            query (str): query provided by user
+            top_k (int, optional): Number of max Outputs. Defaults to 3.
+            filters (dict | None, optional): Metadata Filters. Defaults to None.
+
+        Returns:
+            List: List of id, content, metadata and bm25_score
+        """
+        
         if self.bm25 is None:
             return []
         tokenized_query = query.lower().split()

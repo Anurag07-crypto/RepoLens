@@ -11,6 +11,10 @@ from .query_analyzer import QUERY_ANALYZER
 logger = get_logger(__name__)
 
 class RETRIEVER:
+    """
+    Retriever that helps to retrieve the docs from the storage
+    """
+    
     def __init__(self,
                  embedding_manager:EMBEDDING_MANAGER,
                  vector_db:VECTOR_DB,
@@ -42,12 +46,13 @@ class RETRIEVER:
                 threshold:float=0.3,
                 filters:dict|None=None
                 ):
-        """_summary_
+        """
+        retrieving function for retrieval
 
         Args:
-            query (str): _description_
-            top_k (int, optional): _description_. Defaults to 4.
-            threshold (float, optional): _description_. Defaults to 0.3.
+            query (str): user query
+            top_k (int, optional): Top results in k. Defaults to 4.
+            threshold (float, optional): minimum passing critria. Defaults to 0.3.
         """
         
         try:
@@ -120,11 +125,21 @@ class RETRIEVER:
             
     def dense_search(
                     self,
-                    query,
-                    top_k,
-                    threshold,
+                    query:str,
+                    top_k:int,
+                    threshold:float,
                     filters = None
                     ):
+        """
+        Dense Search For retrieving documents from ChromaDB
+
+        Args:
+            query (str): User Query
+            top_k (int): Top Results by retrieval from K
+            threshold (float): Minimum score to cross the retrieval requirements
+            filters (_type_, optional): MetaData Filters to filter out. Defaults to None.
+        """
+        
         query_embeddings = self.embedding_manager.generate_embeddings([query])[0]
         
         query_args = {

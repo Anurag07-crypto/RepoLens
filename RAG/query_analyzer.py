@@ -10,6 +10,10 @@ from logger import get_logger
 logger = get_logger(__name__)
 
 class QUERY_ANALYZER:
+    """
+    Analyzes the query and list them into a filter metadata
+    """
+    
     def __init__(self):
         logger.info("Query Analyzer Initialized")
         self.language_map = {
@@ -40,6 +44,16 @@ class QUERY_ANALYZER:
         }
     
     def analyzer(self, query:str) -> Dict[str, Any]:
+        """
+        Analyzing function
+
+        Args:
+            query (str): user provided query
+
+        Returns:
+            Dict[str, Any]: dict of results
+        """
+        
         analysis = {
             "semantic_query":query,
             "filters":{}

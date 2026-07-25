@@ -11,3 +11,5 @@ python_dotenv
 langchain
 langchain_core
 rank-bm25
+tree-sitter
+tree-sitter-python

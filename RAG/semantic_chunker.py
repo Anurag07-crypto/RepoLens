@@ -97,8 +97,8 @@ class SEMANTIC_CHUNKER:
         semantic_nodes = []
         for child in root_node.children:
             if child.type in (
-                "function_defination",
-                "class_defination"
+                "function_definition",
+                "class_definition"
             ):
                 semantic_nodes.append(child)
         for child in root_node.children:

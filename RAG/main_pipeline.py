@@ -17,7 +17,7 @@ def data_load(repo_link):
         repo_link (str): link of the github repository
     """
     documents = git_ingestion(repo_link)
-    chunks = splitter(document=documents)
+    chunks = splitter(documents)
     
     chunk_ids = [str(uuid.uuid4()) for _ in chunks]
 

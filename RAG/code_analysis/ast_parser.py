@@ -143,19 +143,10 @@ class AST_PARSER:
         tree = self.parse_file(file_path)
         
         return {
-            "File":Path(file_path).name,
-            "Imports":self.extract_imports(tree),
-            "Classes":self.extract_classes(tree),
-            "Functions":self.extract_functions(tree, file_path),
-            "Methods":self.extract_methods(tree, file_path)
+            "file_name":Path(file_path).name,
+            "imports":self.extract_imports(tree),
+            "classes":self.extract_classes(tree),
+            "functions":self.extract_functions(tree, file_path),
+            "methods":self.extract_methods(tree, file_path)
         }
         
-parser = AST_PARSER()
-
-index = parser.build_repository_index(
-    "C:/Users/Lenovo/Desktop/Lens/RepoLens/RAG/bm25_manager.py"
-)
-
-from pprint import pprint
-
-pprint(index)

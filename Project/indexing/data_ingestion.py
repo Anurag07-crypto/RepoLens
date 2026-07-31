@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from logger import get_logger
-from .semantic_chunker import SEMANTIC_CHUNKER
 
 logger = get_logger(__name__)
 
@@ -26,16 +25,3 @@ def git_ingestion(repo_link:str):
         logger.error(f"Git Repo Not Existed or invalid repo link:{e}")
         raise RuntimeError("Git Repo Not Existed or invalid repo link") from e
 
-def splitter(docs):
-    """Splitter to split docs
-
-    Args:
-        document (_type_): documents
-        chunk_overload (int, optional):  Defaults to 2000.
-        chunk_overlap (int, optional):  Defaults to 200.
-    """
-    
-    semantic_chunker = SEMANTIC_CHUNKER()
-    chunks = semantic_chunker.chunk_documents(docs)
-    logger.info("Docs Converted into Chunks")
-    return chunks

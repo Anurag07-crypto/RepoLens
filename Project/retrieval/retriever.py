@@ -2,9 +2,9 @@ import sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent.parent))
 from logger import get_logger
-from .embedding_manager import EMBEDDING_MANAGER
-from .vector_db import VECTOR_DB
-from .bm25_manager import BM25_MANAGER
+from ..indexing.embedding_manager import EMBEDDING_MANAGER
+from ..storage.vector_db import VECTOR_DB
+from ..indexing.bm25_manager import BM25_MANAGER
 from .reranker import RERANKER
 from .query_analyzer import QUERY_ANALYZER
 

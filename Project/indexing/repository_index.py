@@ -1,4 +1,5 @@
 import uuid
+from ..code_analysis.graph_retriever import GRAPH_RETRIEVER
 class REPOSITORY_INDEXING:
     """
     Orchestrates the complete repository indexing pipeline.
@@ -20,6 +21,10 @@ class REPOSITORY_INDEXING:
         self.bm25_manager = bm25_manager
         
         self.repository_indices = {}
+        self.graph_retriever = GRAPH_RETRIEVER(
+            repository_graph=self.repository_graph,
+            repository_indices=self.repository_indices
+        )
         
     def index_repository(self, documents):
         """
@@ -27,7 +32,7 @@ class REPOSITORY_INDEXING:
         """
         for doc in documents:
             self.process_document(doc)
-        pass
+        
 
     def process_document(self, document):
         """
@@ -43,10 +48,13 @@ class REPOSITORY_INDEXING:
         """
         Build repository index using AST.
         """
-        repository_index = self.ast_parser.build_repository_index(document)
-        self.repository_indices(
+        file_path = document.metadata["source"]
+
+        repository_index = self.ast_parser.build_repository_index(file_path)
+
+        self.repository_indices[
             repository_index["file_name"]
-        ) = repository_index
+        ] = repository_index
         return repository_index
         
 
@@ -60,7 +68,7 @@ class REPOSITORY_INDEXING:
         """
         Produce semantic chunks.
         """
-        self.semantic_chunker.chunk_document(document)
+        return self.semantic_chunker.chunk_documents([document])
 
     def index_chunks(self, chunks):
 
@@ -88,3 +96,10 @@ class REPOSITORY_INDEXING:
             )
 
         self.bm25_manager.index()
+    
+    def get_graph_retriever(self):
+        return self.graph_retriever
+    
+    def get_repository_graph(self):
+        return self.repository_graph
+

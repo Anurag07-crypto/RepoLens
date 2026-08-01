@@ -7,6 +7,7 @@ from ..storage.vector_db import VECTOR_DB
 from ..indexing.bm25_manager import BM25_MANAGER
 from .reranker import RERANKER
 from .query_analyzer import QUERY_ANALYZER
+from ..code_analysis.graph_retriever import GRAPH_RETRIEVER
 
 logger = get_logger(__name__)
 
@@ -20,13 +21,15 @@ class RETRIEVER:
                  vector_db:VECTOR_DB,
                  bm25_manager:BM25_MANAGER,
                  reranker:RERANKER,
-                 query_analyzer:QUERY_ANALYZER
+                 query_analyzer:QUERY_ANALYZER,
+                 graph_retriever:GRAPH_RETRIEVER
                  ):
         self.embedding_manager = embedding_manager
         self.vector_db = vector_db
         self.bm25_manager = bm25_manager
         self.reranker = reranker
         self.query_analyzer = query_analyzer
+        self.graph_retriever = graph_retriever
     
     def _get_top_k(self, intent:str):
         if intent=="explain":
@@ -67,6 +70,11 @@ class RETRIEVER:
                 top_k,
                 threshold,
                 filters= filters)
+            
+            dense_results = [   self.graph_retriever.enrich_document(doc)
+                                for doc in dense_results
+                            ]
+            
             keyword_results = self.bm25_manager.keyword_search(
                 semantic_query,
                 top_k=top_k,
@@ -265,3 +273,6 @@ Context:
         except Exception as e:
             logger.error(f"LLM invocation failed for query '{user_query}': {e}")
             return "The assistant could not generate a response due to an internal error. Please try again."
+        
+        
+        

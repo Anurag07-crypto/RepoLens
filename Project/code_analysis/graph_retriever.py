@@ -86,3 +86,19 @@ class GRAPH_RETRIEVER:
         
         return self.repository_indices.get(file_name)
     
+    def enrich_document(self, doc:dict):
+        """
+        This Because Retriever.py does'nt know how graph_retriever.py
+        """
+        
+        node = self.resolve_node(doc)
+        
+        if node in None:
+            return doc
+        
+        repository_context = self.expand_context(node)
+        doc["graph_node"] = node
+        doc["repository_context"] = repository_context
+        
+        return doc
+    

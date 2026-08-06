@@ -140,6 +140,15 @@ class AST_PARSER:
         
         " Parse a Python file and build a structured repository index."
         
+        if not self._is_python_file(file_path):
+            return {
+                "file_name":Path(file_path).name,
+                "imports":[],
+                "classes":[],
+                "functions":[],
+                "methods":[]
+            }
+        
         tree = self.parse_file(file_path)
         
         return {
@@ -149,4 +158,7 @@ class AST_PARSER:
             "functions":self.extract_functions(tree, file_path),
             "methods":self.extract_methods(tree, file_path)
         }
+
+    def _is_python_file(self, file_path:str)->bool:
+        return Path(file_path).suffix.lower() in ['.py']
         

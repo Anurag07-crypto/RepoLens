@@ -231,14 +231,67 @@ class LLM_SERVICE:
         blocks = []
         for i, doc in enumerate(documents, 1):
             metadata = doc.get("metadata", {}) or {}
+            
+            graph_context = doc.get("graph_context",{})
+            graph_node = doc.get("graph_node")
+            parent = graph_context.get("parent")
+            children = graph_context.get("children", [])
+            neighbors = graph_context.get("neighbors", [])
+            repo_context = graph_context.get("graph_context")
+            repo_text = ""
+            if repo_context:
+                repo_text = f"""
+Repository Context
+
+Imports:
+{repo_context.get("imports")}
+
+Classes:
+{repo_context.get("classes")}
+
+Functions:
+{repo_context.get("functions")}
+
+Methods:
+{repo_context.get("methods")}
+"""
+            parent_name = parent["name"] if parent else None
+            child_names = [
+                child["name"]
+                for child in children
+            ]
+            neighbor_names = [
+                nighb["name"]
+                for nighb in neighbors
+            ]
+            
             file_name = metadata.get("file_name", "unknown_file")
             content = doc.get("content", "")
             score = doc.get("rerank_score", doc.get("rrf_score"))
             score_line = f"Relevance: {score:.4f}" if isinstance(score, (int, float)) else ""
 
             blocks.append(
-                f"[{i}] File: {file_name}\n{score_line}\n```\n{content}\n```"
-            )
+    f"""
+[{i}] File: {file_name}
+
+{score_line}
+
+Graph Node:
+{graph_node}
+
+Parent:
+{parent_name}
+
+Children:
+{", ".join(child_names) if child_names else "None"}
+
+Neighbors:
+{", ".join(neighbor_names) if neighbor_names else "None"}
+RepoText:
+{repo_text}
+Code:
+{content}
+""")
         return "\n\n".join(blocks)
 
     def call_llm(self, user_query: str) -> str:

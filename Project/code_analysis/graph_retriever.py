@@ -1,4 +1,4 @@
-
+from .repository_graph import REPOSITORY_GRAPH
 class GRAPH_RETRIEVER:
     """
     Traverses and queries the Repository Graph.
@@ -79,13 +79,23 @@ class GRAPH_RETRIEVER:
         if node is None:
             return None
         
-        if node["type"] != "file":
-            return None
+        repository_context = None
+                
+        if node["type"] == "file":
+            graph_context = self.repository_indices.get(
+                node["name"]
+            )
+            parent = self.get_parent(node_id=node["id"])
+            children = self.get_children(node_id=node["id"])
+            neighbors = self.get_neighbors(node_id=node["id"])
+            
+            return {
+                "graph_context":graph_context,
+                "parent":parent,
+                "children":children,
+                "neighbors":neighbors
+            }
         
-        file_name = node["name"]
-        
-        return self.repository_indices.get(file_name)
-    
     def enrich_document(self, doc:dict):
         """
         This Because Retriever.py does'nt know how graph_retriever.py
@@ -93,12 +103,11 @@ class GRAPH_RETRIEVER:
         
         node = self.resolve_node(doc)
         
-        if node in None:
+        if node is None:
             return doc
         
         repository_context = self.expand_context(node)
         doc["graph_node"] = node
-        doc["repository_context"] = repository_context
+        doc["graph_context"] = repository_context
         
         return doc
-    

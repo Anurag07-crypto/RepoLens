@@ -4,13 +4,13 @@ from pydantic import BaseModel
 import sys 
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent.parent))
-from RepoLens.Project.pipeline import data_load
-from RepoLens.Project.retrieval.retriever import LLM_SERVICE, RETRIEVER
-from RepoLens.Project.indexing.bm25_manager import BM25_MANAGER
-from RepoLens.Project.indexing.embedding_manager import EMBEDDING_MANAGER
-from RepoLens.Project.storage.vector_db import VECTOR_DB
-from RepoLens.Project.retrieval.reranker import RERANKER
-from RepoLens.Project.retrieval.query_analyzer import QUERY_ANALYZER
+from Project.pipeline import data_load
+from Project.retrieval.retriever import LLM_SERVICE, RETRIEVER
+from Project.indexing.bm25_manager import BM25_MANAGER
+from Project.indexing.embedding_manager import EMBEDDING_MANAGER
+from Project.storage.vector_db import VECTOR_DB
+from Project.retrieval.reranker import RERANKER
+from Project.retrieval.query_analyzer import QUERY_ANALYZER
 from logger import get_logger
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv

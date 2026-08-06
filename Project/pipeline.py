@@ -35,6 +35,10 @@ indexer = REPOSITORY_INDEXING(
     bm25_manager
 )
 
+def data_load(repo_url):
+    build_repository(repo_url)
+
+
 def build_repository(repo_url):
     documents = git_ingestion(repo_url)
     indexer.index_repository(documents)

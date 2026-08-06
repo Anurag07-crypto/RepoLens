@@ -13,6 +13,15 @@ def git_ingestion(repo_link:str):
         repo_link (str): git repo link
     """
     try:
+        import shutil
+        from pathlib import Path
+        
+        repo_path = Path("./git_repo")
+        
+        if repo_path.exists():
+            shutil.rmtree(repo_path)
+            logger.info(f"Cleaned up existing repository directory: {repo_path}")
+        
         docs = GitLoader(
             clone_url=repo_link,
             repo_path="./git_repo"

@@ -26,7 +26,7 @@ class AST_PARSER:
                 source_code = f.read()
             
             tree = ast.parse(source_code)
-            logger.info("Sourced code parsed")
+            logger.info("Source code parsed")
             return tree
         
         except SyntaxError as e:

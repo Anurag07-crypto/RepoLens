@@ -1,4 +1,5 @@
 import uuid
+from pathlib import Path
 from ..code_analysis.graph_retriever import GRAPH_RETRIEVER
 class REPOSITORY_INDEXING:
     """
@@ -48,8 +49,11 @@ class REPOSITORY_INDEXING:
         """
         Build repository index using AST.
         """
-        file_path = document.metadata["source"]
-
+        repo_path = Path("git_repo")
+        file_path = repo_path/document.metadata["source"]
+        print(document.metadata)
+        print(document.metadata.get("source"))
+        print(file_path)
         repository_index = self.ast_parser.build_repository_index(file_path)
 
         self.repository_indices[

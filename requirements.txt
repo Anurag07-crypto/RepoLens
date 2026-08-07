@@ -1,3 +1,4 @@
+--requirement RepoLens/requirements.txt
 langchain-community
 gitpython
 langchain_groq

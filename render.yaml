@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: repolens-backend
+    env: python
+    region: oregon
+    plan: free
+    root: RepoLens
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn Backend.server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GROQ_API_KEY
+        sync_env: false
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://repolens-frontend.onrender.com
+      - key: UVICORN_RELOAD
+        value: "false"
+
+  - type: static
+    name: repolens-frontend
+    env: static
+    region: oregon
+    plan: free
+    root: FRONTEND
+    buildCommand: npm ci && npm run build
+    publishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://repolens-backend.onrender.com

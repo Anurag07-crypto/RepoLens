@@ -61,6 +61,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "RepoLens API"}
+
 @app.post("/link")
 def insert_link(link:GIT_REPO):
     """

@@ -30,7 +30,7 @@ class RERANKER:
         self.client = InferenceClient(token=hf_token)
         self.model = self.client.feature_extraction(
             "rerank test",
-            self.model_name
+            model=self.model_name
             )
         logger.info("Model Loaded.....")
     def rerank(

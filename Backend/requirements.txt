@@ -1,7 +1,7 @@
 langchain-community
 gitpython
 langchain_groq
-sentence-transformers
+huggingface_hub
 streamlit
 fastapi
 chromadb

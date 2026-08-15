@@ -1,9 +1,5 @@
 import chromadb
-
-from typing import List, Any
 import os
-import numpy as np
-
 import sys
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent.parent))
@@ -49,7 +45,7 @@ class VECTOR_DB:
             logger.error("Length of documents and embeddings must match")
             raise RuntimeError("Length of documents and embeddings must match")
         metadatas, document_texts, embeddings_list = [], [], []
-        for i, (document, embedding) in enumerate(zip(documents, embeddings)):
+        for (document, embedding) in enumerate(zip(documents, embeddings)):
             metadata = dict(document.metadata)
             metadata["context"] = len(document.page_content)
             metadatas.append(metadata)

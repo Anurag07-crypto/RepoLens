@@ -2,22 +2,17 @@ import chromadb
 import os
 import sys
 from pathlib import Path
-sys.path.insert(0,str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from logger import get_logger
+
 logger = get_logger(__name__)
 
-persistent_path = Path(__file__).parent.parent/ "data" / "vector_database"
+persistent_path = Path(__file__).parent.parent / "data" / "vector_database"
+
 class VECTOR_DB:
     def __init__(self,
-                 persistant_dir:str=persistent_path,
-                 collection_name:str="git_storage"):
-        """Collects and Store information in Vector Database
-
-        Args:
-            persistant_dir (str, optional):  Defaults to persistent_path.
-            collection_name (str, optional):  Defaults to "git_storage".
-        """
-        
+                 persistant_dir: str = persistent_path,
+                 collection_name: str = "git_storage"):
         self.collection_name = collection_name
         self.persistant_dir = persistant_dir
         self.client = None
@@ -30,12 +25,10 @@ class VECTOR_DB:
             self.client = chromadb.PersistentClient(self.persistant_dir)
             self.collection = self.client.get_or_create_collection(
                 name=self.collection_name,
-                metadata={"description":"git text embeddings"}
+                metadata={"description": "git text embeddings"}
             )
-
             logger.info(f"Vector Store Initialized {self.collection_name}")
-            logger.debug(f"Existing Document in Collection {self.collection.count()}")
-        
+            logger.debug(f"Existing Documents in Collection: {self.collection.count()}")
         except Exception as e:
             logger.error(f"Vector Store Not Initialized: {e}")
             raise RuntimeError("Vector Store Not Initialized") from e
@@ -44,6 +37,7 @@ class VECTOR_DB:
         if len(documents) != len(embeddings):
             logger.error("Length of documents and embeddings must match")
             raise RuntimeError("Length of documents and embeddings must match")
+        
         metadatas, document_texts, embeddings_list = [], [], []
         for document, embedding in zip(documents, embeddings):
             metadata = dict(document.metadata)
@@ -52,11 +46,33 @@ class VECTOR_DB:
             document_texts.append(document.page_content)
             embeddings_list.append(embedding.tolist())
 
-        self.collection.add(
-            embeddings=embeddings_list,
-            metadatas=metadatas,
-            documents=document_texts,
-            ids=[str(i) for i in ids]
-        )
+        try:
+            self.collection.add(
+                embeddings=embeddings_list,
+                metadatas=metadatas,
+                documents=document_texts,
+                ids=[str(i) for i in ids]
+            )
+        except chromadb.errors.InvalidArgumentError as e:
+            if "dimension" in str(e).lower():
+                logger.warning(f"Dimension mismatch detected: {e}. Recreating collection...")
+                try:
+                    self.client.delete_collection(name=self.collection_name)
+                except Exception:
+                    pass
+                self.collection = self.client.get_or_create_collection(
+                    name=self.collection_name,
+                    metadata={"description": "git text embeddings"}
+                )
+                self.collection.add(
+                    embeddings=embeddings_list,
+                    metadatas=metadatas,
+                    documents=document_texts,
+                    ids=[str(i) for i in ids]
+                )
+                logger.info("Collection recreated and documents added successfully")
+            else:
+                raise
+        
         logger.info(f"Information collected: {len(documents)} documents added to vector store")
         logger.info(f"Total documents in collection: {self.collection.count()}")

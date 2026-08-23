@@ -7,16 +7,7 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent.parent))
 from Project.pipeline import data_load
 from Project.retrieval.retriever import LLM_SERVICE, RETRIEVER
-from Project.indexing.bm25_manager import BM25_MANAGER
-from Project.indexing.embedding_manager import EMBEDDING_MANAGER
-from Project.storage.vector_db import VECTOR_DB
-from Project.retrieval.reranker import RERANKER
-from Project.retrieval.query_analyzer import QUERY_ANALYZER
-from Project.code_analysis.graph_retriever import GRAPH_RETRIEVER
-from Project.indexing.repository_index import REPOSITORY_INDEXING
-from Project.code_analysis.ast_parser import AST_PARSER
-from Project.code_analysis.repository_graph import REPOSITORY_GRAPH
-from Project.indexing.semantic_chunker import SEMANTIC_CHUNKER
+from Project.core.state import get_app_state
 from logger import get_logger
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
@@ -25,24 +16,9 @@ import os
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
 logger = get_logger(__name__)
-embedding_manager = EMBEDDING_MANAGER()
-vector_db = VECTOR_DB()
-bm25_manager = BM25_MANAGER()
-reranker = RERANKER()
-query_analyzer = QUERY_ANALYZER()
-ast_parser = AST_PARSER()
-semantic_chunker = SEMANTIC_CHUNKER()
-repository_graph = REPOSITORY_GRAPH()
-indexer = REPOSITORY_INDEXING(ast_parser,
-                            semantic_chunker,
-                            repository_graph,
-                            embedding_manager,
-                            vector_db,
-                            bm25_manager)
-graph_retriever = GRAPH_RETRIEVER(
-    indexer.repository_graph,
-    indexer.repository_indices
-)
+
+state = get_app_state()
+
 
 class GIT_REPO(BaseModel):
     repo_link:str
@@ -114,12 +90,12 @@ def main(query:REQUEST):
     
     try:
         llm = ChatGroq(model="openai/gpt-oss-20b", api_key=groq_api_key)
-        retriever = RETRIEVER(embedding_manager,
-                            vector_db,
-                            bm25_manager,
-                            reranker,
-                            query_analyzer,
-                            graph_retriever
+        retriever = RETRIEVER(state.embedding_manager,
+                            state.vector_db,
+                            state.bm25_manager,
+                            state.reranker,
+                            state.query_analyzer,
+                            state.graph_retriever
                             )
         llm_function = LLM_SERVICE(llm, retriever=retriever)
         query_text = query.query

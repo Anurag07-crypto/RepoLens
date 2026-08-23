@@ -36,11 +36,11 @@ class EMBEDDING_MANAGER:
     def _load_model(self):
         try:
             if InferenceClient is None:
-                raise RuntimeError("huggingface_hub is not installed")
+                raise RuntimeError("huggingface_hub is not installed. Install it with pip install huggingface_hub")
 
             hf_token = os.getenv("HF_TOKEN")
             if not hf_token:
-                raise RuntimeError("HF_TOKEN environment variable is not set")
+                raise RuntimeError("HF_TOKEN environment variable is not set. set it to your huggingface access token")
 
             self.client = InferenceClient(token=hf_token)
 
@@ -65,19 +65,8 @@ class EMBEDDING_MANAGER:
                 f"HF Inference API could not be reached: {e}"
             )
 
-    def _fallback_embedding(self, text: str) -> np.ndarray:
-        cleaned = re.sub(r"\W+", " ", text.lower()).strip()
-        tokens = cleaned.split() if cleaned else [""]
-        vector = np.zeros(self.embedding_dimension, dtype=np.float32)
-        for token in tokens:
-            index = abs(hash(token)) % self.embedding_dimension
-            vector[index] += 1.0
-        if vector.sum() == 0:
-            vector[0] = 1.0
-        return vector / max(vector.sum(), 1.0)
-
     def generate_embeddings(self, texts: List[str]) -> np.ndarray:
-        """Generating Embeddings
+        """Generating Embeddings raise on any failure
 
         Args:
             texts (List[str]): list of texts as input
@@ -90,23 +79,20 @@ class EMBEDDING_MANAGER:
             logger.warning("Empty Text Passed to the Model")
             return np.array([])
 
-        if self.fallback_mode or self.client is None:
-            logger.debug("Generating fallback embeddings")
-            return np.vstack([self._fallback_embedding(text) for text in texts])
-
-        try:
-            logger.debug("Generating Embeddings via HF Inference API")
-            vectors = []
-            for text in texts:
+        logger.debug(f"Generating embeddings for {len(texts)} texts via HF API")
+        vectors = []
+        for text in texts:
+            try:
                 vec = self.client.feature_extraction(text, model=self.model_name)
                 vec = np.array(vec, dtype=np.float32)
                 if vec.ndim > 1:
                     # Some models return token-level embeddings; mean-pool them.
                     vec = vec.mean(axis=0)
                 vectors.append(vec)
-            embeddings = np.vstack(vectors)
-            logger.info("Embeddings Generated")
-            return embeddings
-        except Exception as e:
-            logger.error(f"Embeddings Not Generated via API, using fallback: {e}")
-            return np.vstack([self._fallback_embedding(text) for text in texts])
+            except Exception as e:
+                raise RuntimeError(
+                f"Embedding API failed for text: {text[:50]}... — {e}"
+            ) from e
+        embeddings = np.vstack(vectors)
+        logger.info(f"Generated {len(texts)} embeddings")
+        return embeddings

@@ -62,7 +62,8 @@ class VECTOR_DB:
                     pass
                 self.collection = self.client.get_or_create_collection(
                     name=self.collection_name,
-                    metadata={"description": "git text embeddings"}
+                    metadata={"description": "git text embeddings",
+                              "hnsw:space": "cosine"}
                 )
                 self.collection.add(
                     embeddings=embeddings_list,
@@ -87,6 +88,7 @@ class VECTOR_DB:
             pass
         self.collection = self.client.get_or_create_collection(
             name=self.collection_name,
-            metadata={"description":"git text embeddings"}
+            metadata={"description":"git text embeddings",
+                        "hnsw:space": "cosine"}
         )
         logger.info("Old Chroma files are deleted ")

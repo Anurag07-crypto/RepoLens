@@ -15,7 +15,7 @@ class RERANKER:
     (no local model weights loaded, avoids OOM on constrained hosts like Render).
     """
 
-    def __init__(self, model_name: str = "BAAI/bge-reranker-base"):
+    def __init__(self, model_name: str = "BAAI/bge-reranker-v2-m3"):
         self.model_name = model_name
         self.client = None
         self._load_model()

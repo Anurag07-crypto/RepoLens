@@ -25,7 +25,8 @@ class VECTOR_DB:
             self.client = chromadb.PersistentClient(self.persistant_dir)
             self.collection = self.client.get_or_create_collection(
                 name=self.collection_name,
-                metadata={"description": "git text embeddings"}
+                metadata={"description": "git text embeddings",
+                          "hnsw:space": "cosine"}
             )
             logger.info(f"Vector Store Initialized {self.collection_name}")
             logger.debug(f"Existing Documents in Collection: {self.collection.count()}")

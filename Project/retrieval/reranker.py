@@ -11,8 +11,9 @@ logger = get_logger(__name__)
 
 class RERANKER:
     """
-    Rerank results using the HF Inference API's sentence-similarity task
-    (no local model weights loaded, avoids OOM on constrained hosts like Render).
+    Rerank results using the HF Inference API's text-classification task
+    (bge-reranker-v2-m3 is a cross-encoder; no local model weights loaded,
+    avoids OOM on constrained hosts like Render).
     """
 
     def __init__(self, model_name: str = "BAAI/bge-reranker-v2-m3"):
@@ -37,30 +38,33 @@ class RERANKER:
         documents: List[dict],
         top_k: int = 5
     ):
-        """Rerank documents based on query relevance using HF's sentence_similarity."""
+        """Rerank documents based on query relevance using HF's text_classification
+        task (bge-reranker-v2-m3 is a cross-encoder classifier, not a
+        sentence-similarity model)."""
         if not documents:
             return []
 
         contents = [doc["content"] for doc in documents]
 
         try:
-            scores = self.client.sentence_similarity(
-                sentence=query,
-                other_sentences=contents,
-                model=self.model_name
-            )
-        except StopIteration:
-            # No provider on HF's Inference API currently serves this model
-            # for the sentence-similarity task.
-            logger.error(
-                f"No HF Inference provider serves '{self.model_name}' for "
-                "sentence-similarity. Consider switching to a hosted reranker "
-                "(e.g. Jina AI Reranker, Cohere Rerank) or a provider-supported model."
-            )
+            scores = []
+            for content in contents:
+                result = self.client.text_classification(
+                    text=query,
+                    text_pair=content,
+                    model=self.model_name
+                )
+                # Log once so we can confirm the actual response shape in practice.
+                logger.debug(f"Raw text_classification result: {result}")
+                if isinstance(result, list):
+                    scores.append(result[0]["score"])
+                else:
+                    scores.append(result["score"])
+        except Exception as e:
+            logger.error(f"Reranker call failed for '{self.model_name}': {e}")
             raise RuntimeError(
-                f"Reranker model '{self.model_name}' is not available via any "
-                "HF Inference provider for sentence-similarity."
-            )
+                f"Reranker model '{self.model_name}' failed during text_classification"
+            ) from e
 
         for doc, score in zip(documents, scores):
             doc["rerank_score"] = float(score)

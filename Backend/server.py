@@ -7,11 +7,15 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).parent.parent))
 from Project.pipeline import data_load
 from Project.retrieval.retriever import LLM_SERVICE, RETRIEVER
-from Project.core.state import get_app_state
+from Project.core.state import get_app_state, reset_app_state
 from logger import get_logger
 from langchain_groq import ChatGroq
 from dotenv import load_dotenv
 import os
+import hashlib
+
+def get_repo_hash(repo_url: str) -> str:
+    return hashlib.md5(repo_url.encode()).hexdigest()[:12]
 
 load_dotenv()
 groq_api_key = os.getenv("GROQ_API_KEY")
@@ -56,10 +60,11 @@ def insert_link(link:GIT_REPO):
     Returns:
         str: repo_link
     """
-    
+    global state
     try:
         repo_link = link.repo_link
         logger.info(f"Loading repository: {repo_link}")
+        reset_app_state()
         data_load(repo_link)
         logger.info(f"Repository loaded successfully: {repo_link}")
         return {"status": "Repo Loaded Successfully", "repo": repo_link}

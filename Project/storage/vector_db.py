@@ -76,3 +76,17 @@ class VECTOR_DB:
         
         logger.info(f"Information collected: {len(documents)} documents added to vector store")
         logger.info(f"Total documents in collection: {self.collection.count()}")
+        
+    def clear(self):
+        """Wipes out all the previous docs fetched to vector chroma db 
+        whenever you load a new git repo"""
+            
+        try:
+            self.client.delete_collection(name=self.collection_name)
+        except:
+            pass
+        self.collection = self.client.get_or_create_collection(
+            name=self.collection_name,
+            metadata={"description":"git text embeddings"}
+        )
+        logger.info("Old Chroma files are deleted ")

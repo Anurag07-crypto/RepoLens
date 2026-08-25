@@ -64,7 +64,7 @@ def insert_link(link:GIT_REPO):
     try:
         repo_link = link.repo_link
         logger.info(f"Loading repository: {repo_link}")
-        reset_app_state()
+        state=reset_app_state()
         data_load(repo_link)
         logger.info(f"Repository loaded successfully: {repo_link}")
         return {"status": "Repo Loaded Successfully", "repo": repo_link}

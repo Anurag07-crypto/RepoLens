@@ -41,7 +41,7 @@ def get_app_state():
 def reset_app_state():
     global _app_state
     old_state = _app_state
-    if old_state is None:
+    if old_state is not None:
         old_state.vector_db.clear() # wipe the on-disk collection before rebuilding
     _app_state = _APPSTATE()
     return _app_state

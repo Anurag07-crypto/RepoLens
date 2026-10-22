@@ -40,7 +40,8 @@ class RERANKER:
     ):
         """Rerank documents based on query relevance using HF's text_classification
         task (bge-reranker-v2-m3 is a cross-encoder classifier, not a
-        sentence-similarity model)."""
+        sentence-similarity model). The HF endpoint accepts paired inputs as a
+        ``text``/``text_pair`` object."""
         if not documents:
             return []
 
@@ -50,8 +51,8 @@ class RERANKER:
             scores = []
             for content in contents:
                 result = self.client.text_classification(
-                    text=query,
-                    text_pair=content,
+                    # InferenceClient forwards this structured input unchanged.
+                    text={"text": query, "text_pair": content},  # type: ignore[arg-type]
                     model=self.model_name
                 )
                 # Log once so we can confirm the actual response shape in practice.
@@ -86,7 +87,7 @@ Receive Documents
 Build (query, document) pairs
         │
         ▼
-HF Inference API sentence_similarity()
+HF Inference API text_classification(text/text_pair)
         │
         ▼
 Attach scores
